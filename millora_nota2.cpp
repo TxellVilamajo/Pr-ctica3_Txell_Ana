@@ -3,7 +3,7 @@
 #include <BLEUtils.h>
 #include <BLEServer.h>
 
-// Definir el nombre del dispositivo y las características
+// Definir el nom del dispositiu i les característiques
 #define SERVICE_UUID           "0000181C-0000-1000-8000-00805F9B34FB"
 #define CHARACTERISTIC_UUID    "00002A74-0000-1000-8000-00805F9B34FB"
 
@@ -12,50 +12,54 @@ BLECharacteristic *pCharacteristic;
 
 // Crear el servidor BLE
 class MyServerCallbacks: public BLEServerCallbacks {
+    // Quan un client es connecta
     void onConnect(BLEServer* pServer) {
-        Serial.println("Cliente conectado");
+        Serial.println("Client connectat");
     };
 
+    // Quan un client es desconnecta
     void onDisconnect(BLEServer* pServer) {
-        Serial.println("Cliente desconectado");
+        Serial.println("Client desconnectat");
     }
 };
 
 void setup() {
-    // Inicializar la comunicación serial
+    // Inicialitzar la comunicació per port sèrie
     Serial.begin(115200);
-    Serial.println("Iniciando BLE...");
+    Serial.println("Iniciant BLE...");
 
-    // Inicializar BLE
+    // Inicialitzar BLE amb el nom "ESP32 BLE Server"
     BLEDevice::init("ESP32 BLE Server");
 
     // Crear el servidor BLE
     BLEServer *pServer = BLEDevice::createServer();
-    pServer->setCallbacks(new MyServerCallbacks());
+    pServer->setCallbacks(new MyServerCallbacks());  // Assignem els callbacks per les connexions
 
-    // Crear un servicio BLE
+    // Crear un servei BLE amb el UUID especificat
     BLEService *pService = pServer->createService(SERVICE_UUID);
 
-    // Crear una característica BLE
+    // Crear una característica BLE (llegir i escriure)
     pCharacteristic = pService->createCharacteristic(
                         CHARACTERISTIC_UUID,
-                        BLECharacteristic::PROPERTY_READ |
-                        BLECharacteristic::PROPERTY_WRITE
+                        BLECharacteristic::PROPERTY_READ |  // Permet llegir el valor de la característica
+                        BLECharacteristic::PROPERTY_WRITE  // Permet escriure a la característica
                       );
 
     // Configurar el valor inicial de la característica
-    pCharacteristic->setValue("Hola desde ESP32!");
+    pCharacteristic->setValue("Hola des de ESP32!");
 
-    // Iniciar el servicio
+    // Iniciar el servei BLE
     pService->start();
 
-    // Empezar a publicitar el dispositivo BLE
+    // Començar a publicitar el dispositiu BLE (perquè altres dispositius el puguin detectar)
     BLEAdvertising *pAdvertising = pServer->getAdvertising();
     pAdvertising->start();
-    Serial.println("Esperando cliente...");
+    
+    // Mostrar missatge a la consola sèrie
+    Serial.println("Esperant client...");
 }
 
 void loop() {
-    // En el loop no es necesario hacer nada si solo estamos esperando conexiones
-    delay(2000);
+    // En aquest cas no cal fer res al loop, només s'espera la connexió
+    delay(2000); // Espera de 2 segons abans de repetir el bucle
 }
